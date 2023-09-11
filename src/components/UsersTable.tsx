@@ -42,19 +42,23 @@ const UsersTable: FC<UserTableProps> = ({ data }) => {
 
   const handlePage = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const value = Number(e.target.value);
+
+    const maxPage = Math.ceil(data?.total! / settings.itemsPerPage);
     if (!isNaN(value)) {
-      setPage(value);
+      if (value >= maxPage) {
+        setPage(maxPage);
+      } else {
+        setPage(value);
+      }
     } else {
       setPage(1);
     }
   };
 
   const handleInceasePageCount = () => {
-    if (data?.total) {
-      const maxPage = Math.ceil(data?.total / settings.itemsPerPage);
-      if (settings.page < maxPage) {
-        increasePage(1);
-      }
+    const maxPage = Math.ceil(data?.total! / settings.itemsPerPage);
+    if (settings.page < maxPage) {
+      increasePage(1);
     }
   };
 
@@ -214,7 +218,7 @@ const UsersTable: FC<UserTableProps> = ({ data }) => {
                 className="bg-gray-100 border border-gray-200 rounded-md text-[13px] mr-2 py-1 px-3 focus:outline-none cursor-pointer"
               >
                 <option value="10">10</option>
-                <option value="25">25</option>
+                <option value="20">20</option>
                 <option value="50">50</option>
               </select>
               <span className="uppercase text-gray-500 text-[10px] font-semibold">

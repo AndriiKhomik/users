@@ -7,6 +7,7 @@ const initialData = {
   page: 1,
   skip: 0,
   itemsPerPage: 10,
+  search: "",
   columns: [
     { key: "fullName", value: "Full name", isShow: true, isCanHide: false },
     { key: "birthDate", value: "Birthday", isShow: true, isCanHide: true },
@@ -77,6 +78,12 @@ export const settingsSlice = createSlice({
           isShow: !state.settings.columns[idx].isShow,
         };
       }
+    },
+    setSearch(state, action: PayloadAction<string>) {
+      state.settings.search = action.payload;
+      state.settings.page = 1;
+      state.settings.itemsPerPage = 10;
+      state.settings.skip = 0;
     },
   },
 });

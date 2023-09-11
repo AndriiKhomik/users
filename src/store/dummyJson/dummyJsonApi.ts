@@ -15,8 +15,8 @@ export const dummyJsonApi = createApi({
   refetchOnFocus: true,
   endpoints: (build) => ({
     getUsers: build.query<ServerResponse, Props>({
-      query: ({ search, skip, limit }) => ({
-        url: "users",
+      query: ({ search = "", skip, limit }) => ({
+        url: "users/search",
         params: {
           q: search,
           limit: limit,
