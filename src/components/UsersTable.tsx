@@ -6,52 +6,75 @@ import { MenuItem, ServerResponse } from "../types";
 import { fullYearsCount } from "../utils/fullYearsCount";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
+import CaretLeftLine from "../icons/CaretLeftLine";
+import CaretRightLine from "../icons/CaretRightLine";
+import CaretLeft from "../icons/CaretLeft";
+import CaretRight from "../icons/CaretRight";
+import { useAppSelector } from "../hooks/redux";
+import { useActions } from "../hooks/actions";
+import { shouldRenderColumn } from "../utils/shouldRenderColumn";
 
 interface UserTableProps {
   data: ServerResponse | undefined;
 }
 
-const columns = [
-  { key: "fullName", value: "Full name", isShow: true, isCanHide: false },
-  { key: "birthDate", value: "Birthday", isShow: true, isCanHide: true },
-  { key: "gender", value: "Gender", isShow: true, isCanHide: true },
-  { key: "email", value: "Email", isShow: true, isCanHide: false },
-  { key: "phone", value: "Phone", isShow: true, isCanHide: true },
-  { key: "username", value: "Username", isShow: true, isCanHide: false },
-  { key: "generalInfo", value: "General Info", isShow: true, isCanHide: true },
-  { key: "domain", value: "Domain", isShow: true, isCanHide: true },
-  { key: "ip", value: "IP", isShow: true, isCanHide: true },
-  { key: "macAddress", value: "Mac address", isShow: true, isCanHide: true },
-];
-
-const shouldRenderColumn = (columns: any, key: string) => {
-  const displayColumns = columns.filter((column: any) => column.isShow);
-  return displayColumns.some((column: any) => column.key === key);
-};
-
 const UsersTable: FC<UserTableProps> = ({ data }) => {
-  const [selectedColumns, setSelectedColumns] = useState(columns);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const { settings } = useAppSelector((state) => state.settings);
+  const {
+    setItemsPerPage,
+    setPage,
+    setLastPage,
+    increasePage,
+    descreasePage,
+    setFirstPage,
+    toggleColumn,
+  } = useActions();
 
   const handleCheched = (e: Event, menuItem: MenuItem) => {
-    if (menuItem.isCanHide) {
-      const idx = selectedColumns.findIndex(
-        (column) => column.key === menuItem.key
-      );
-      const beforeIndex = selectedColumns.slice(0, idx);
-      const afterIndex = selectedColumns.slice(idx + 1);
-      const selectedItem = {
-        ...selectedColumns[idx],
-        isShow: !selectedColumns[idx].isShow,
-      };
-      setSelectedColumns([...beforeIndex, selectedItem, ...afterIndex]);
+    toggleColumn(menuItem);
+  };
+
+  const handleSelectItemsPerPage = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setItemsPerPage(e.target.value);
+  };
+
+  const handlePage = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const value = Number(e.target.value);
+    if (!isNaN(value)) {
+      setPage(value);
+    } else {
+      setPage(1);
     }
   };
 
-  const handleSelectItemsPerPage = (e: any) => {
-    setItemsPerPage(e.target.value);
+  const handleInceasePageCount = () => {
+    if (data?.total) {
+      const maxPage = Math.ceil(data?.total / settings.itemsPerPage);
+      if (settings.page < maxPage) {
+        increasePage(1);
+      }
+    }
   };
-  console.log(data?.total, data?.users.length);
+
+  const handleDeacreasePageCount = () => {
+    if (settings.page <= 1) {
+      return;
+    }
+    descreasePage(1);
+  };
+
+  const handleGoToFirstPage = () => {
+    setFirstPage(1);
+  };
+
+  const handleGotoLastPage = () => {
+    if (data?.total) {
+      const maxPage = Math.ceil(data?.total / settings.itemsPerPage);
+      setLastPage(maxPage);
+    }
+  };
 
   return (
     <>
@@ -70,7 +93,7 @@ const UsersTable: FC<UserTableProps> = ({ data }) => {
               className="z-20 min-w-[228px] bg-white rounded-lg p-[5px] will-change-[opacity,transform] data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade cursor-pointer"
               sideOffset={5}
             >
-              {selectedColumns.map((column) => (
+              {settings.columns.map((column: MenuItem) => (
                 <DropdownMenu.CheckboxItem
                   key={column.key}
                   checked
@@ -92,7 +115,7 @@ const UsersTable: FC<UserTableProps> = ({ data }) => {
           <table className="w-full border">
             <thead className="z-10 border">
               <tr className="border">
-                {columns.map((column) => {
+                {settings.columns.map((column: MenuItem) => {
                   if (column.isShow) {
                     return (
                       <th
@@ -124,7 +147,7 @@ const UsersTable: FC<UserTableProps> = ({ data }) => {
                         <div className="pt-[6px]">{`${user.firstName} ${user.lastName}`}</div>
                       </div>
                     </th>
-                    {shouldRenderColumn(selectedColumns, "birthDate") && (
+                    {shouldRenderColumn(settings.columns, "birthDate") && (
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <div>
                           {user.birthDate}
@@ -132,7 +155,7 @@ const UsersTable: FC<UserTableProps> = ({ data }) => {
                         </div>
                       </td>
                     )}
-                    {shouldRenderColumn(selectedColumns, "gender") && (
+                    {shouldRenderColumn(settings.columns, "gender") && (
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <div className="flex items-center">
                           {user.gender === "male" ? <FaMale /> : <FaFemale />}
@@ -143,7 +166,7 @@ const UsersTable: FC<UserTableProps> = ({ data }) => {
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       {user.email}
                     </td>
-                    {shouldRenderColumn(selectedColumns, "phone") && (
+                    {shouldRenderColumn(settings.columns, "phone") && (
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         {user.phone}
                       </td>
@@ -151,7 +174,7 @@ const UsersTable: FC<UserTableProps> = ({ data }) => {
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       {user.username}
                     </td>
-                    {shouldRenderColumn(selectedColumns, "generalInfo") && (
+                    {shouldRenderColumn(settings.columns, "generalInfo") && (
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <span>Bloodgroup: {user.bloodGroup} </span>
                         <span>Height: {user.height} </span>
@@ -159,17 +182,17 @@ const UsersTable: FC<UserTableProps> = ({ data }) => {
                         <span>Hair color: {user.hair.color} </span>
                       </td>
                     )}
-                    {shouldRenderColumn(selectedColumns, "domain") && (
+                    {shouldRenderColumn(settings.columns, "domain") && (
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         {user.domain}
                       </td>
                     )}
-                    {shouldRenderColumn(selectedColumns, "ip") && (
+                    {shouldRenderColumn(settings.columns, "ip") && (
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         {user.ip}
                       </td>
                     )}
-                    {shouldRenderColumn(selectedColumns, "macAddress") && (
+                    {shouldRenderColumn(settings.columns, "macAddress") && (
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         {user.macAddress}
                       </td>
@@ -185,7 +208,7 @@ const UsersTable: FC<UserTableProps> = ({ data }) => {
             <div className="flex items-center">
               <select
                 onChange={handleSelectItemsPerPage}
-                value={itemsPerPage}
+                value={settings.itemsPerPage}
                 name="items"
                 id="items"
                 className="bg-gray-100 border border-gray-200 rounded-md text-[13px] mr-2 py-1 px-3 focus:outline-none cursor-pointer"
@@ -198,7 +221,31 @@ const UsersTable: FC<UserTableProps> = ({ data }) => {
                 Items per page
               </span>
             </div>
-            <div>pages</div>
+            <div className="flex items-center">
+              <div className="uppercase text-gray-500 text-[10px] font-semibold pt-[1px] mr-4">
+                {settings.skip + 1} -{data?.users.length + settings.skip} of{" "}
+                {data?.total}
+              </div>
+              <div className="flex items-center">
+                <button className="mr-3" onClick={handleGoToFirstPage}>
+                  <CaretLeftLine />
+                </button>
+                <button className="mr-3" onClick={handleDeacreasePageCount}>
+                  <CaretLeft />
+                </button>
+                <input
+                  className="w-[64px] border mr-3 rounded-md bg-gray-100 text-[13px] text-center py-1"
+                  value={settings.page}
+                  onChange={handlePage}
+                />
+                <button className="mr-3" onClick={handleInceasePageCount}>
+                  <CaretRight />
+                </button>
+                <button className="mr-3" onClick={handleGotoLastPage}>
+                  <CaretRightLine />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -1,8 +1,17 @@
 import UsersTable from "../components/UsersTable";
+import { useAppSelector } from "../hooks/redux";
 import { useGetUsersQuery } from "../store/dummyJson/dummyJsonApi";
 
 const Home = () => {
-  const { data } = useGetUsersQuery({ search: "", limit: 10, page: 1 });
+  const { settings } = useAppSelector((state) => state.settings);
+  const { data } = useGetUsersQuery(
+    {
+      search: "",
+      limit: settings.itemsPerPage,
+      skip: settings.skip,
+    },
+    { refetchOnMountOrArgChange: true, pollingInterval: 30000 }
+  );
 
   return (
     <section className="w-[1024px] mx-auto">

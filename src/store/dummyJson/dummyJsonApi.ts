@@ -3,7 +3,7 @@ import { ServerResponse } from "../../types";
 
 type Props = {
   search: string;
-  page: number;
+  skip: number;
   limit: number;
 };
 
@@ -15,12 +15,12 @@ export const dummyJsonApi = createApi({
   refetchOnFocus: true,
   endpoints: (build) => ({
     getUsers: build.query<ServerResponse, Props>({
-      query: ({ search, page, limit }) => ({
+      query: ({ search, skip, limit }) => ({
         url: "users",
         params: {
           q: search,
-          limit: 10,
-          page: page,
+          limit: limit,
+          skip: skip,
         },
       }),
       transformResponse: (response: ServerResponse) => response,
