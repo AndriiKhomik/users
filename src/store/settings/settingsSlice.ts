@@ -77,6 +77,7 @@ export const settingsSlice = createSlice({
           ...state.settings.columns[idx],
           isShow: !state.settings.columns[idx].isShow,
         };
+        localStorage.setItem(LS_SETTINGS_KEY, JSON.stringify(state.settings));
       }
     },
     setSearch(state, action: PayloadAction<string>) {
