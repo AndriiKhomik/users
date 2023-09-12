@@ -8,9 +8,7 @@ import { useState } from "react";
 
 const UsersDropdownMenu = () => {
   const { settings } = useAppSelector((state) => state.settings);
-  const { toggleColumn } = useActions();
-
-  const [search, setSearch] = useState("");
+  const { toggleColumn, setFilter } = useActions();
 
   const handleCheched = (e: Event, menuItem: MenuItem) => {
     toggleColumn(menuItem);
@@ -40,8 +38,8 @@ const UsersDropdownMenu = () => {
               placeholder="Search..."
               className="border rounded-lg bg-gray-100 w-full focus:outline-none p-1 text-[13px] pl-7"
               onClick={(e) => e.stopPropagation()}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={settings.filter}
+              onChange={(e) => setFilter(e.target.value)}
             />
           </DropdownMenu.Item>
           {settings.columns.map((column: MenuItem) => (

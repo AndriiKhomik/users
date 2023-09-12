@@ -8,6 +8,7 @@ const initialData = {
   skip: 0,
   itemsPerPage: 10,
   search: "",
+  filter: "",
   columns: [
     { key: "fullName", value: "Full name", isShow: true, isCanHide: false },
     { key: "birthDate", value: "Birthday", isShow: true, isCanHide: true },
@@ -85,6 +86,9 @@ export const settingsSlice = createSlice({
       state.settings.page = 1;
       state.settings.itemsPerPage = 10;
       state.settings.skip = 0;
+    },
+    setFilter(state, action: PayloadAction<string>) {
+      state.settings.filter = action.payload;
     },
   },
 });

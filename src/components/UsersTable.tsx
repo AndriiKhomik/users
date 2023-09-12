@@ -15,6 +15,12 @@ interface UserTableProps {
 const UsersTable: FC<UserTableProps> = ({ data }) => {
   const { settings } = useAppSelector((state) => state.settings);
 
+  const filteredData = data?.users.filter(
+    (user) =>
+      user.firstName.toLowerCase().includes(settings.filter.toLowerCase()) ||
+      user.lastName.toLowerCase().includes(settings.filter.toLowerCase())
+  );
+
   return (
     <>
       <div className="p-4 font-sans flex flex-col h-screen relative">
@@ -39,7 +45,7 @@ const UsersTable: FC<UserTableProps> = ({ data }) => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y">
-              {data?.users.map((user) => {
+              {filteredData?.map((user) => {
                 return (
                   <tr key={user.id} className="divide-x text-[13px]">
                     <th className="px-6 py-4 whitespace-nowrap bg-white">
